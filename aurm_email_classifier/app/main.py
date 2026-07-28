@@ -1,5 +1,6 @@
 import uvicorn
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 
@@ -19,6 +20,10 @@ def on_startup():
 
 app.include_router(classify.router)
 app.include_router(feedback.router)
+
+@app.get("/")
+def root():
+    return RedirectResponse(url="/docs")
 
 @app.get("/health", response_model=schemas.HealthResponse, tags=["System"])
 def health_check():
