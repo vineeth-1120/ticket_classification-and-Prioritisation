@@ -24,6 +24,7 @@ class ClassifyResponse(BaseModel):
     status: str
     needs_human_review: bool
     language: str
+    feedback: Optional[List["FeedbackData"]] = None
 
 class FeedbackRequest(BaseModel):
     classification_id: int
@@ -31,6 +32,18 @@ class FeedbackRequest(BaseModel):
     corrected_priority: Optional[str] = None
     notes: Optional[str] = None
     agent_id: str
+
+class FeedbackData(BaseModel):
+    id: int
+    classification_id: int
+    corrected_category: Optional[str]
+    corrected_priority: Optional[str]
+    notes: Optional[str]
+    agent_id: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
 
 class FeedbackResponse(BaseModel):
     status: str

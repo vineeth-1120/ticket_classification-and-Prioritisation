@@ -1,6 +1,6 @@
 import uvicorn
 from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 
 from . import models, schemas
@@ -24,16 +24,33 @@ app.include_router(feedback.router)
 def health_check():
     return {"status": "ok", "version": "1.0.0"}
 
-@app.get("/classifications/{classification_id}", tags=["Classification"])
+@app.get("/classifications/{classification_id}", response_model=schemas.ClassifyResponse, tags=["Classification"])
 def get_classification(classification_id: int, db: Session = Depends(get_db)):
-    db_classification = db.query(models.Classification).filter(models.Classification.id == classification_id).first()
-    if not db_classification:
+    classification = db.query(models.Classification).options(
+        joinedload(models.Classification.email),
+        joinedload(models.Classification.feedbacks)
+    ).filter(models.Classification.id == classification_id).first()
+    
+    if not classification:
         raise HTTPException(status_code=404, detail="Classification not found")
-        
-    return {
-        "classification": db_classification,
-        "email": db_classification.email
-    }
+    
+    return schemas.ClassifyResponse(
+        email_id=classification.email.email_id,
+        classification_id=classification.id,
+        category=classification.category,
+        priority=classification.priority,
+        confidence=classification.confidence,
+        summary=classification.summary,
+        suggested_action=classification.suggested_action,
+        estimated_response_time_hours=classification.estimated_response_time_hours,
+        tags=classification.tags,
+        routed_to=classification.routed_to,
+        sla_deadline=classification.sla_deadline,
+        status=classification.status,
+        needs_human_review=classification.needs_human_review,
+        language=classification.email.language,
+        feedback=classification.feedbacks
+    )
 
 @app.get("/stats", response_model=schemas.StatsResponse, tags=["System"])
 def get_stats(db: Session = Depends(get_db)):

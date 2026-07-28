@@ -93,6 +93,20 @@ def rule_based_classify(cleaned_body: str, title: str):
             "urgency_signals": ["billing concern"]
         }
     
+    # Closure
+    if any(word in text for word in ["close", "terminate", "vacate", "end rental", "stop", "cancel", "withdraw", "deposit back"]):
+        return {
+            "category": "Closure/Termination",
+            "priority": "P2",
+            "confidence": 0.65,
+            "summary": "Customer wishes to end their locker rental.",
+            "suggested_action": "Assign to Operations Team.",
+            "estimated_response_time_hours": 48,
+            "tags": ["closure", "termination"],
+            "sentiment": "neutral",
+            "urgency_signals": ["termination request"]
+        }
+    
     # Booking
     if any(word in text for word in ["rent", "book", "available", "waitlist", "upgrade", "downsize", "larger", "smaller", "new locker", "want a locker"]):
         return {
@@ -119,20 +133,6 @@ def rule_based_classify(cleaned_body: str, title: str):
             "tags": ["complaint", "escalation"],
             "sentiment": "frustrated",
             "urgency_signals": ["dissatisfaction"]
-        }
-    
-    # Closure
-    if any(word in text for word in ["close", "terminate", "vacate", "end rental", "stop", "cancel", "withdraw", "deposit back"]):
-        return {
-            "category": "Closure/Termination",
-            "priority": "P2",
-            "confidence": 0.65,
-            "summary": "Customer wishes to end their locker rental.",
-            "suggested_action": "Assign to Operations Team.",
-            "estimated_response_time_hours": 48,
-            "tags": ["closure", "termination"],
-            "sentiment": "neutral",
-            "urgency_signals": ["termination request"]
         }
     
     # Default: General Inquiry
