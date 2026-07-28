@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: aurm-email-classifier
+    runtime: python
+    plan: free
+    rootDir: aurm_email_classifier
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port 10000
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        value: sqlite:///./aurm_emails.db
+      - key: MODEL_NAME
+        value: gpt-4o-mini
